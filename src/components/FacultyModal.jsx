@@ -341,7 +341,7 @@ const FacultyModal = ({ faculty, onClose }) => {
               <>
                 <div className="fm-section-title" style={{marginTop: '20px'}}>Research</div>
                 <div className="fm-grid-2">
-                  <DetailCard icon="📄" label="Publications" value={faculty.researchPublications} full />
+                  <DetailCard icon="📄" label="Publications" value={faculty.researchPublications} link={faculty.vidwanLink} full />
                   <DetailCard icon="🔍" label="Projects" value={faculty.researchProjects} />
                   <DetailCard icon="👨‍🎓" label="Research Guidance" value={faculty.researchGuidance} />
                 </div>
@@ -379,6 +379,28 @@ const FacultyModal = ({ faculty, onClose }) => {
   );
 };
 
+const renderValue = (text) => {
+  const urlRegex = /(https:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#7e0000', textDecoration: 'underline' }}
+        >
+          {part}
+        </a>
+      );
+    } else {
+      return part;
+    }
+  });
+};
+
 const StatCard = ({ label, value }) => {
   if (!value) return null;
   return (
@@ -389,13 +411,29 @@ const StatCard = ({ label, value }) => {
   );
 };
 
-const DetailCard = ({ icon, label, value, full = false }) => {
+const DetailCard = ({ icon, label, value, link, full = false }) => {
   if (!value) return null;
   return (
     <div className={`fm-detail-card${full ? ' full' : ''}`}>
       <span className="fm-detail-icon">{icon}</span>
       <div className="fm-detail-label">{label}</div>
-      <div className="fm-detail-value">{value}</div>
+      <div className="fm-detail-value">{renderValue(value)}{link && (
+          <div style={{ marginTop: "8px" }}>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#7e0000",
+                fontWeight: "600",
+                textDecoration: "underline",
+                fontSize: "0.8rem"
+              }}
+            >
+              View Vidwan Profile
+            </a>
+          </div>
+        )}</div>
     </div>
   );
 };

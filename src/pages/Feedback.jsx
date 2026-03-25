@@ -13,9 +13,9 @@ const Feedback = () => {
 
         .fb-root {
           font-family: 'DM Sans', sans-serif;
-          min-height: 100vh;
           background: linear-gradient(135deg, #fef5f5 0%, #fff5f5 100%);
           position: relative;
+          overflow-x: hidden;
         }
 
         /* Subtle noise texture overlay */
@@ -101,8 +101,45 @@ const Feedback = () => {
         /* Desktop */
         @media (min-width: 1024px) {
           .fb-cards-container {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 40px;
+          }
+        }
+
+        /* Large Desktop */
+        @media (min-width: 1440px) {
+          .fb-cards-container {
+            gap: 48px;
+          }
+        }
+
+        /* Ultra-wide */
+        @media (min-width: 1600px) {
+          .fb-container {
+            padding: 80px 40px;
+          }
+          .fb-cards-container {
+            gap: 56px;
+          }
+          .fb-card {
+            padding: 50px 35px;
+          }
+          .fb-icon-wrapper {
+            width: 120px;
+            height: 120px;
+          }
+          .fb-icon {
+            font-size: 3.5rem;
+          }
+          .fb-card-title {
+            font-size: clamp(1.8rem, 3vw, 2.2rem);
+          }
+          .fb-card-description {
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
+          }
+          .fb-button {
+            padding: 16px 36px;
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
           }
         }
 
@@ -119,6 +156,73 @@ const Feedback = () => {
           .fb-cards-container {
             grid-template-columns: 1fr;
             gap: 24px;
+          }
+          .fb-button {
+            width: 100%;
+            justify-content: center;
+          }
+          .fb-decorative-circle {
+            display: none;
+          }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+          .fb-container {
+            padding: 20px 12px;
+          }
+          .fb-cards-container {
+            gap: 20px;
+          }
+          .fb-card {
+            padding: 30px 20px;
+          }
+          .fb-icon-wrapper {
+            width: 80px;
+            height: 80px;
+          }
+          .fb-icon {
+            font-size: 2.5rem;
+          }
+          .fb-card-title {
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+          }
+          .fb-card-description {
+            font-size: clamp(0.85rem, 1vw, 0.95rem);
+          }
+          .fb-button {
+            padding: 12px 24px;
+            font-size: clamp(0.85rem, 1vw, 0.95rem);
+          }
+        }
+
+        /* Extra Small Mobile */
+        @media (max-width: 360px) {
+          .fb-container {
+            padding: 16px 10px;
+          }
+          .fb-cards-container {
+            gap: 16px;
+          }
+          .fb-card {
+            padding: 24px 16px;
+          }
+          .fb-icon-wrapper {
+            width: 70px;
+            height: 70px;
+          }
+          .fb-icon {
+            font-size: 2rem;
+          }
+          .fb-card-title {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+          }
+          .fb-card-description {
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
+          }
+          .fb-button {
+            padding: 10px 20px;
+            font-size: clamp(0.8rem, 1vw, 0.9rem);
           }
         }
 
@@ -243,35 +347,11 @@ const Feedback = () => {
           transform: translateX(4px);
         }
 
-        /* Decorative elements */
-        .fb-decorative-circle {
-          position: absolute;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(126, 0, 0, 0.05) 0%, transparent 70%);
-          pointer-events: none;
-        }
-
-        .fb-decorative-circle-1 {
-          width: 300px;
-          height: 300px;
-          top: -150px;
-          right: -150px;
-        }
-
-        .fb-decorative-circle-2 {
-          width: 200px;
-          height: 200px;
-          bottom: -100px;
-          left: -100px;
-        }
+        /* Decorative elements - removed for cleaner UI */
       `}</style>
 
       <div className="fb-root">
         <Navbar />
-        
-        {/* Decorative circles */}
-        <div className="fb-decorative-circle fb-decorative-circle-1" />
-        <div className="fb-decorative-circle fb-decorative-circle-2" />
 
         <div className="fb-container">
           <h1 className="fb-title">Feedback Portal</h1>
@@ -327,6 +407,24 @@ const Feedback = () => {
               <h2 className="fb-card-title">Parents Feedback</h2>
               <p className="fb-card-description">
                 As a parent, your insights help us serve you better.
+              </p>
+              <button className="fb-button">
+                Open Form
+                <span className="fb-arrow">→</span>
+              </button>
+            </div>
+
+            {/* Alumni Feedback Card */}
+            <div 
+              className="fb-card"
+              onClick={() => handleOpenForm(feedbackFormURLs.alumni)}
+            >
+              <div className="fb-icon-wrapper">
+                <span className="fb-icon">🎓</span>
+              </div>
+              <h2 className="fb-card-title">Alumni Feedback</h2>
+              <p className="fb-card-description">
+                Share your post-graduation experiences and suggestions as an alumnus.
               </p>
               <button className="fb-button">
                 Open Form
