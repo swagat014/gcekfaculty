@@ -184,10 +184,10 @@ export const facultyData = [
     experience: "33 years",
     subjects: "Structural Analysis, Advance Structural Analysis, Design of Concrete Structures, Strength of Materials",
     awards: "Best Research Award from BPUT, Rourkela",
-    researchGuidance: "M.Tech Guidance: 12 , PhD Guidance: 2 completed, 3 ongoing",
+    researchGuidance: "M.Tech Guidance: 21 , PhD Guidance: 2 completed, 3 ongoing",
     administrativeResponsibility: "PREVIOUS: HOD Civil Engineering, BOG Member , PIC Academic, TEQIP-III Nodal Officer Academics, Academic Council Member of BPUT,Rourkela, Dean Students Welfare, CURRENT: Dean SRIC",
     professionalBodies: "1) Fellow, The Instituction of Eagineers (INDIA) F-1241512, 2) Life membes of Indian Association for structural Engineering (IASE) LM- 167, 3) Life member of Association of Structural RehabiLitation (ASTR) LM - A300340 , 4) Life Member of Indian Concrete Institute (ICI) LM-9932, 5) Life Membar, The Indian Society for technical Education (ISTE) LM-95186",
-    researchPublications: "More than 150+ papers + 2 books",
+    researchPublications: "More than 150 + papers + 2 books",
     researchProjects: "Nil",
     seminarsOrganized: "National Conference, seminar, webinar and FDP",
     address: "Professor, Civil Engineering Department, GCEK Bhawanipatna, Odisha",
@@ -1273,7 +1273,7 @@ export const facultyData = [
     "seminarsOrganized": "NA",
     "address": "NA",
     "department": "Basic Science & Humanities",
-    "image": ""
+    "image": "/teacher/kanak.jpeg"
   },
   {
     "id": 56,
@@ -1296,7 +1296,7 @@ export const facultyData = [
     "seminarsOrganized": "NA",
     "address": "NA",
     "department": "Basic Science & Humanities",
-    "image": ""
+    "image": "/teacher/srikant.jpeg"
   },
   {
     "id": 57,
@@ -1304,22 +1304,22 @@ export const facultyData = [
     "type": "Guest Faculty",
     "designation": "Assistant Professor",
     "phone": "8917560792",
-    "email": "abhilashkumarsahoo@gmail.com",
+    "email": " abhklgb@gmail.com",
     "dateOfJoining": "2025-08-01",
     "qualification": "Ph.D",
-    "specialization": "N/A",
-    "experience": "N/A",
+    "specialization": "material science and condensed matter physics",
+    "experience": "2 year 5 months",
     "subjects": "Physics",
     "awards": "No",
     "researchGuidance": "No",
     "administrativeResponsibility": "No",
     "professionalBodies": "No",
-    "researchPublications": "No",
+    "researchPublications": "7 , Google Scholar:  https://scholar.google.com/citations?hl=en&user=e9JdgHEAAAAJ",
     "researchProjects": "No",
-    "seminarsOrganized": "NA",
+    "seminarsOrganized": "4",
     "address": "NA",
     "department": "Basic Science & Humanities",
-    "image": ""
+    "image": "/teacher/abhilash.jpeg"
   },
   {
     "id": 57,
@@ -1342,7 +1342,7 @@ export const facultyData = [
     "seminarsOrganized": "NA",
     "address": "NA",
     "department": "Mechanical Engineering",
-    "image": ""
+    "image": "/teacher/chinmay.jpeg"
   },
   {
     "id": 58,
@@ -1457,7 +1457,7 @@ export const facultyData = [
     "seminarsOrganized": "NA",
     "address": "NA",
     "department": "Electrical Engineering",
-    "image": "",
+    "image": "/teacher/niranjan.jpeg",
   },
   {
     "id": 63,
