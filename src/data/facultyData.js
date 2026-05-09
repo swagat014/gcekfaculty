@@ -380,7 +380,7 @@ export const facultyData = [
   },
   {
     id: 17,
-    name: "Dr Dillip Ranjan Nayak",
+    name: "Dr. Dillip Ranjan Nayak",
     type: "Regular Faculty",
     designation: "Associate Professor",
     phone: "9861239074",
@@ -610,7 +610,7 @@ export const facultyData = [
   },
   {
     id: 27,
-    name: "Chandra Sekhar Saran",
+    name: "Dr. Chandra Sekhar Saran",
     type: "Regular Faculty",
     designation: "Assistant Professor (Selection Grade)",
     phone: "7008544802",
@@ -1093,7 +1093,7 @@ export const facultyData = [
   },
   {
     id: 48,
-    name: "Dr Priya S",
+    name: "Dr. Priya S",
     type: "Regular Faculty",
     designation: "Associate Professor",
     phone: "8249451156",

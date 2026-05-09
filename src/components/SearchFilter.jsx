@@ -293,6 +293,8 @@ const SearchFilter = ({
               <option value="Professor">Professor</option>
               <option value="Associate Professor">Associate Professor</option>
               <option value="Assistant Professor">Assistant Professor</option>
+              <option value="Assistant Professor (Senior Scale)">Assistant Professor (Senior Scale)</option>
+              <option value="Assistant Professor (Selection Grade)">Assistant Professor (Selection Grade)</option>
             </select>
             <span className="sf-select-arrow">▼</span>
           </div>
