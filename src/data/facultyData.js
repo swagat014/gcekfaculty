@@ -122,7 +122,7 @@ export const facultyData = [
     researchProjects: "Nil",
     seminarsOrganized: "Co-coordinator TEQIP-III FDP RAECE-2020",
     address: "Department of Electrical Engineering, GCEK, Bhawanipatna, PIN:766003",
-    department: "Electrical Engineering",
+    department: "Electronics & Communication Engineering",
     image: "/teacher/DeepaDas.jpg"
   },
   {
@@ -697,7 +697,7 @@ export const facultyData = [
     researchProjects: "UGC Major Research Project-Applied",
     seminarsOrganized: "One FDP and One Conference",
     address: "Dept. of Electrical Engg., Govt. College of Engg. Kalahandi, Bhawanipatna, PIN-766001",
-    department: "Electrical Engineering",
+    department: "Electronics & Communication Engineering",
     image: "/teacher/BikashMeher.jpg"
   },
   {
@@ -927,7 +927,7 @@ export const facultyData = [
     researchProjects: "N/A",
     seminarsOrganized: "N/A",
     address: "TO-BISMITA DASH C/O-BINAPANI PATI MATHA SAHI HATUA SAHI",
-    department: "Electrical Engineering",
+    department: "Electronics & Communication Engineering",
     image: "/teacher/BISMITADASH.JPG"
   },
   {
@@ -996,7 +996,7 @@ export const facultyData = [
     researchProjects: "PLL for 5G Application",
     seminarsOrganized: "01 ANRF Sponsored Seminar on IoT Smart Grid with VLSI",
     address: "Room No. 102, Department of Electrical Engineering, GCEK, Bhawanipatna",
-    department: "Electrical Engineering",
+    department: "Electronics & Communication Engineering",
     image: "/teacher/JayantaPanigrahi.jpg"
   },
   {
@@ -1479,7 +1479,7 @@ export const facultyData = [
     "researchProjects": "No",
     "seminarsOrganized": "NA",
     "address": "NA",
-    "department": "Electrical Engineering",
+    "department": "Electronics & Communication Engineering",
     "image": "https://gcekbpatna.ac.in/assets/documents/faculty/faculty_image/thumbs/8_photo.JPG",
   },
   {
