@@ -698,7 +698,7 @@ export const facultyData = [
     seminarsOrganized: "One FDP and One Conference",
     address: "Dept. of Electrical Engg., Govt. College of Engg. Kalahandi, Bhawanipatna, PIN-766001",
     department: "Electronics & Communication Engineering",
-    image: "/teacher/BikashMeher.jpg"
+    image: "/teacher/bikash.jpeg"
   },
   {
     id: 31,
