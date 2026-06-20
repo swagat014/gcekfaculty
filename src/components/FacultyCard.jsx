@@ -2,7 +2,16 @@ import { convertGoogleDriveUrl } from "../utils/facultyUtils";
 
 const FacultyCard = ({ faculty, onClick }) => {
   const imageUrl = convertGoogleDriveUrl(faculty.image);
+  const isPrincipal = faculty.designation?.toLowerCase() === "principal";
+  const isHod = faculty.hod === "yes";
   
+  let cardClass = "fc-card";
+  if (isPrincipal) {
+    cardClass += " fc-card-principal";
+  } else if (isHod) {
+    cardClass += " fc-card-hod";
+  }
+
   return (
     <>
       <style>{`
@@ -47,6 +56,15 @@ const FacultyCard = ({ faculty, onClick }) => {
           position: relative;
         }
 
+        /* Badge container */
+        .fc-badges-wrap {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
         /* Type badge */
         .fc-type-badge {
           font-size: 0.65rem;
@@ -55,7 +73,6 @@ const FacultyCard = ({ faculty, onClick }) => {
           letter-spacing: 0.06em;
           padding: 3px 10px;
           border-radius: 12px;
-          margin-bottom: 10px;
           white-space: nowrap;
         }
         .fc-type-regular {
@@ -65,6 +82,102 @@ const FacultyCard = ({ faculty, onClick }) => {
         .fc-type-guest {
           background: linear-gradient(135deg, #6b7280, #9ca3af);
           color: #ffffff;
+        }
+
+        /* HOD badge */
+        .fc-hod-badge {
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          padding: 3px 10px;
+          border-radius: 12px;
+          white-space: nowrap;
+          background: linear-gradient(135deg, #d97706, #fbbf24);
+          color: #ffffff;
+          box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+        }
+
+        /* Principal Card Styles */
+        .fc-card-principal {
+          background: linear-gradient(135deg, #f5f8ff, #edf2ff);
+          box-shadow: 0 4px 18px rgba(79, 70, 229, 0.08), 0 0 0 1px rgba(79, 70, 229, 0.15);
+        }
+        .fc-card-principal .fc-name {
+          color: #1a1a1a;
+        }
+        .fc-card-principal .fc-dept {
+          color: #374151;
+        }
+        .fc-card-principal .fc-email {
+          color: #6b7280;
+        }
+        .fc-card-principal .fc-designation {
+          color: #4f46e5;
+          background: #e0e7ff;
+          border: 1px solid #c7d2fe;
+        }
+        .fc-card-principal .fc-divider {
+          background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        }
+        .fc-card-principal .fc-accent {
+          background: linear-gradient(90deg, #4f46e5, #7c3aed, #4f46e5);
+        }
+        .fc-card-principal .fc-footer {
+          background: #ebf1fe;
+          color: #4f46e5;
+          border-top: 1px solid #dbe5ff;
+        }
+        .fc-card-principal:hover {
+          box-shadow: 0 20px 48px rgba(79, 70, 229, 0.14), 0 0 0 1.5px rgba(79, 70, 229, 0.25);
+        }
+        .fc-card-principal:hover .fc-footer {
+          background: linear-gradient(90deg, #4f46e5, #7c3aed);
+          color: #fff;
+        }
+        .fc-card-principal:hover .fc-avatar-ring {
+          background: conic-gradient(#4f46e5 0%, #7c3aed 40%, #e0e7ff 60%, #4f46e5 100%);
+        }
+
+        /* HOD Card Styles */
+        .fc-card-hod {
+          background: linear-gradient(135deg, #fffdf7, #fffcf4);
+          box-shadow: 0 4px 16px rgba(217, 119, 6, 0.08), 0 0 0 1px rgba(217, 119, 6, 0.12);
+        }
+        .fc-card-hod .fc-name {
+          color: #1a150e;
+        }
+        .fc-card-hod .fc-dept {
+          color: #453015;
+        }
+        .fc-card-hod .fc-email {
+          color: #78654c;
+        }
+        .fc-card-hod .fc-designation {
+          color: #d97706;
+          background: #fef3c7;
+          border: 1px solid #fde68a;
+        }
+        .fc-card-hod .fc-divider {
+          background: linear-gradient(90deg, #d97706, #fbbf24);
+        }
+        .fc-card-hod .fc-accent {
+          background: linear-gradient(90deg, #d97706, #fbbf24, #d97706);
+        }
+        .fc-card-hod .fc-footer {
+          background: #faf8f2;
+          color: #d97706;
+          border-top: 1px solid #f9f5ea;
+        }
+        .fc-card-hod:hover {
+          box-shadow: 0 20px 48px rgba(217, 119, 6, 0.16), 0 0 0 1.5px rgba(217, 119, 6, 0.28);
+        }
+        .fc-card-hod:hover .fc-footer {
+          background: linear-gradient(90deg, #d97706, #fbbf24);
+          color: #fff;
+        }
+        .fc-card-hod:hover .fc-avatar-ring {
+          background: conic-gradient(#b45309 0%, #d97706 40%, #fffbeb 60%, #b45309 100%);
         }
 
         /* Avatar with ring */
@@ -93,6 +206,9 @@ const FacultyCard = ({ faculty, onClick }) => {
           overflow: hidden;
           background: #e8f5f0;
         }
+        .fc-card-principal .fc-avatar-inner {
+          border: 3px solid #fff;
+        }
         .fc-avatar-inner img {
           width: 100%;
           height: 100%;
@@ -110,6 +226,10 @@ const FacultyCard = ({ faculty, onClick }) => {
           color: #7e0000;
           font-family: 'Cormorant Garamond', serif;
           font-weight: 700;
+        }
+        .fc-card-principal .fc-avatar-fallback {
+          background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+          color: #4f46e5;
         }
 
         /* Name */
@@ -196,7 +316,7 @@ const FacultyCard = ({ faculty, onClick }) => {
         .fc-card:hover .fc-footer-arrow { transform: translateX(4px); }
       `}</style>
 
-      <div className="fc-card" onClick={() => onClick(faculty)}>
+      <div className={cardClass} onClick={() => onClick(faculty)}>
         <div className="fc-accent" />
 
         <div className="fc-body">
@@ -213,9 +333,11 @@ const FacultyCard = ({ faculty, onClick }) => {
             </div>
           </div>
 
-          <span className={`fc-type-badge ${faculty.type === "Regular" ? "fc-type-regular" : "fc-type-guest"}`}>
-            {faculty.type}
-          </span>
+          <div className="fc-badges-wrap">
+            <span className={`fc-type-badge ${faculty.type === "Regular Faculty" || faculty.type === "Regular" ? "fc-type-regular" : "fc-type-guest"}`}>
+              {faculty.type}
+            </span>
+          </div>
 
           <h2 className="fc-name">{faculty.name}</h2>
           <span className="fc-designation">{faculty.designation}</span>

@@ -11,6 +11,7 @@ const FacultyDirectory = () => {
   const [department, setDepartment] = useState("");
   const [facultyType, setFacultyType] = useState("");
   const [designation, setDesignation] = useState("");
+  const [hod, setHod] = useState("");
   const [page, setPage] = useState(1);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [mounted, setMounted] = useState(false);
@@ -24,7 +25,7 @@ const FacultyDirectory = () => {
   // Reset to page 1 on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, department, facultyType, designation]);
+  }, [search, department, facultyType, designation, hod]);
 
   const departments = [...new Set(facultyData.map((f) => f.department))];
 
@@ -33,7 +34,8 @@ const FacultyDirectory = () => {
       f.name.toLowerCase().includes(search.toLowerCase()) &&
       (department === "" || f.department === department) &&
       (facultyType === "" || f.type === facultyType) &&
-      (designation === "" || f.designation === designation)
+      (designation === "" || f.designation === designation) &&
+      (hod === "" || (hod === "yes" && f.hod === "yes") || (hod === "no" && f.hod !== "yes"))
     );
   });
 
@@ -384,6 +386,8 @@ const FacultyDirectory = () => {
             setFacultyType={setFacultyType}
             designation={designation}
             setDesignation={setDesignation}
+            hod={hod}
+            setHod={setHod}
           />
 
           {/* Results bar */}

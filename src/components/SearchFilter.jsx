@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const SearchFilter = ({
   search,
   setSearch,
@@ -8,18 +10,23 @@ const SearchFilter = ({
   setFacultyType,
   designation,
   setDesignation,
+  hod,
+  setHod,
 }) => {
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
   const hasActiveFilters =
-    search || department || facultyType || designation;
+    search || department || facultyType || designation || hod;
 
   const clearAll = () => {
     setSearch("");
     setDepartment("");
     setFacultyType("");
     setDesignation("");
+    setHod("");
   };
 
-  const activeCount = [search, department, facultyType, designation].filter(Boolean).length;
+  const activeCount = [search, department, facultyType, designation, hod].filter(Boolean).length;
 
   return (
     <>
@@ -74,18 +81,118 @@ const SearchFilter = ({
         .sf-clear:hover { background: #ffc6c6; }
 
         .sf-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        /* Search & Toggle Row */
+        .sf-search-row {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          width: 100%;
+        }
+
+        .sf-search-wrap {
+          position: relative;
+          flex: 1;
+        }
+
+        .sf-toggle-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          height: 46px;
+          padding: 0 16px;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 12px;
+          background: #fafafa;
+          color: #374151;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+          user-select: none;
+        }
+        .sf-toggle-btn:hover {
+          background: #f3f4f6;
+          border-color: #d1d5db;
+        }
+        .sf-toggle-btn.active {
+          border-color: #7e0000;
+          color: #7e0000;
+          background: #fff0f0;
+        }
+        .sf-toggle-icon {
+          font-size: 0.65rem;
+          transition: transform 0.2s ease;
+        }
+        .sf-toggle-btn.active .sf-toggle-icon {
+          transform: rotate(180deg);
+        }
+        .sf-toggle-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #7e0000;
+          color: #fff;
+          font-size: 0.65rem;
+          font-weight: 700;
+          border-radius: 50%;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 4px;
+        }
+
+        /* Dropdowns container default */
+        .sf-dropdowns-container {
           display: grid;
           grid-template-columns: 1fr;
           gap: 10px;
+          width: 100%;
+          max-height: 0;
+          opacity: 0;
+          overflow: hidden;
+          transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, margin-top 0.2s ease;
+          margin-top: 0;
         }
-        @media (min-width: 640px) {
-          .sf-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (min-width: 1024px) {
-          .sf-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+        .sf-dropdowns-container.show {
+          max-height: 500px;
+          opacity: 1;
+          margin-top: 4px;
         }
 
-        /* Search input */
+        @media (min-width: 480px) {
+          .sf-dropdowns-container {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .sf-dropdowns-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-height: none;
+            opacity: 1;
+            overflow: visible;
+            margin-top: 0;
+          }
+          .sf-toggle-btn {
+            display: none;
+          }
+          .sf-grid {
+            display: grid;
+            grid-template-columns: 2fr 4fr;
+            gap: 12px;
+            align-items: center;
+          }
+        }
+
+        /* Search input icon placement */
         .sf-search-wrap {
           position: relative;
         }
@@ -231,72 +338,102 @@ const SearchFilter = ({
         </div>
 
         <div className="sf-grid">
-          {/* Search */}
-          <div className="sf-search-wrap">
-            <span className="sf-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search by name, email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="sf-search-input"
-            />
+          {/* Search & Toggle Row */}
+          <div className="sf-search-row">
+            <div className="sf-search-wrap">
+              <span className="sf-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search by name, email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="sf-search-input"
+              />
+              <button
+                className={`sf-clear-x ${search ? "show" : ""}`}
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            </div>
+
             <button
-              className={`sf-clear-x ${search ? "show" : ""}`}
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
+              type="button"
+              className={`sf-toggle-btn ${showMobileFilters ? "active" : ""}`}
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              aria-label="Toggle filters"
             >
-              ✕
+              <span className="sf-toggle-icon">▼</span>
+              Filters {activeCount > 0 && <span className="sf-toggle-badge">{activeCount}</span>}
             </button>
           </div>
 
-          {/* Department */}
-          <div className="sf-select-wrap">
-            <span className="sf-select-icon">🏛️</span>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className={`sf-select ${department ? "active" : ""}`}
-            >
-              <option value="">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            <span className="sf-select-arrow">▼</span>
-          </div>
+          {/* Collapsible Dropdowns Container */}
+          <div className={`sf-dropdowns-container ${showMobileFilters ? "show" : ""}`}>
+            {/* Department */}
+            <div className="sf-select-wrap">
+              <span className="sf-select-icon">🏛️</span>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className={`sf-select ${department ? "active" : ""}`}
+              >
+                <option value="">All Departments</option>
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+              <span className="sf-select-arrow">▼</span>
+            </div>
 
-          {/* Faculty Type */}
-          <div className="sf-select-wrap">
-            <span className="sf-select-icon">👤</span>
-            <select
-              value={facultyType}
-              onChange={(e) => setFacultyType(e.target.value)}
-              className={`sf-select ${facultyType ? "active" : ""}`}
-            >
-              <option value="">All Types</option>
-              <option value="Regular Faculty">Regular</option>
-              <option value="Guest Faculty">Guest</option>
-            </select>
-            <span className="sf-select-arrow">▼</span>
-          </div>
+            {/* Faculty Type */}
+            <div className="sf-select-wrap">
+              <span className="sf-select-icon">👤</span>
+              <select
+                value={facultyType}
+                onChange={(e) => setFacultyType(e.target.value)}
+                className={`sf-select ${facultyType ? "active" : ""}`}
+              >
+                <option value="">All Types</option>
+                <option value="Regular Faculty">Regular</option>
+                <option value="Guest Faculty">Guest</option>
+              </select>
+              <span className="sf-select-arrow">▼</span>
+            </div>
 
-          {/* Designation */}
-          <div className="sf-select-wrap">
-            <span className="sf-select-icon">🎓</span>
-            <select
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-              className={`sf-select ${designation ? "active" : ""}`}
-            >
-              <option value="">All Designations</option>
-              <option value="Professor">Professor</option>
-              <option value="Associate Professor">Associate Professor</option>
-              <option value="Assistant Professor">Assistant Professor</option>
-              <option value="Assistant Professor (Senior Scale)">Assistant Professor (Senior Scale)</option>
-              <option value="Assistant Professor (Selection Grade)">Assistant Professor (Selection Grade)</option>
-            </select>
-            <span className="sf-select-arrow">▼</span>
+            {/* Designation */}
+            <div className="sf-select-wrap">
+              <span className="sf-select-icon">🎓</span>
+              <select
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                className={`sf-select ${designation ? "active" : ""}`}
+              >
+                <option value="">All Designations</option>
+                <option value="Professor">Professor</option>
+                <option value="Associate Professor">Associate Professor</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Assistant Professor (Senior Scale)">Assistant Professor (Senior Scale)</option>
+                <option value="Assistant Professor (Selection Grade)">Assistant Professor (Selection Grade)</option>
+              </select>
+              <span className="sf-select-arrow">▼</span>
+            </div>
+
+            {/* HOD Status */}
+            <div className="sf-select-wrap">
+              <span className="sf-select-icon">👔</span>
+              <select
+                value={hod}
+                onChange={(e) => setHod(e.target.value)}
+                className={`sf-select ${hod ? "active" : ""}`}
+              >
+                <option value="">All Staff</option>
+                <option value="yes">HOD Only</option>
+                <option value="no">Non-HOD</option>
+              </select>
+              <span className="sf-select-arrow">▼</span>
+            </div>
           </div>
         </div>
       </div>
