@@ -10,6 +10,11 @@
 export const convertGoogleDriveUrl = (url) => {
   if (!url) return 'https://via.placeholder.com/150?text=No+Image';
   
+  // Handle local uploaded paths
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:5000${url}`;
+  }
+  
   // Handle Google Drive URLs
   const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (driveMatch) {

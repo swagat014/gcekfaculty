@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { facultyData } from "../data/facultyData";
+import { api } from "../services/api";
 import FacultyCard from "../components/FacultyCard";
 import SearchFilter from "../components/SearchFilter";
 import Pagination from "../components/Pagination";
@@ -7,6 +7,8 @@ import FacultyModal from "../components/FacultyModal";
 import Navbar from "../components/Navbar";
 
 const FacultyDirectory = () => {
+  const [facultyList, setFacultyList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [facultyType, setFacultyType] = useState("");
@@ -18,8 +20,20 @@ const FacultyDirectory = () => {
 
   const perPage = 15;
 
+  // Load faculty list from dynamic API on mount
   useEffect(() => {
     setMounted(true);
+    const loadFaculty = async () => {
+      try {
+        const data = await api.getFaculty();
+        setFacultyList(data);
+      } catch (err) {
+        console.error("Failed to load faculty list:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadFaculty();
   }, []);
 
   // Reset to page 1 on filter change
@@ -27,11 +41,11 @@ const FacultyDirectory = () => {
     setPage(1);
   }, [search, department, facultyType, designation, hod]);
 
-  const departments = [...new Set(facultyData.map((f) => f.department))];
+  const departments = [...new Set(facultyList.map((f) => f.department))].filter(Boolean);
 
-  const filteredFaculty = facultyData.filter((f) => {
+  const filteredFaculty = facultyList.filter((f) => {
     return (
-      f.name.toLowerCase().includes(search.toLowerCase()) &&
+      (f.name || "").toLowerCase().includes(search.toLowerCase()) &&
       (department === "" || f.department === department) &&
       (facultyType === "" || f.type === facultyType) &&
       (designation === "" || f.designation === designation) &&
@@ -41,13 +55,13 @@ const FacultyDirectory = () => {
 
   // Sort: Principal first, then alphabetical by name
   const sortedFaculty = [...filteredFaculty].sort((a, b) => {
-    const aIsPrincipal = a.designation.toLowerCase() === "principal";
-    const bIsPrincipal = b.designation.toLowerCase() === "principal";
+    const aIsPrincipal = (a.designation || "").toLowerCase() === "principal";
+    const bIsPrincipal = (b.designation || "").toLowerCase() === "principal";
     
     if (aIsPrincipal && !bIsPrincipal) return -1;
     if (!aIsPrincipal && bIsPrincipal) return 1;
     
-    return a.name.localeCompare(b.name);
+    return (a.name || "").localeCompare(b.name || "");
   });
 
   const start = (page - 1) * perPage;
@@ -63,7 +77,7 @@ const FacultyDirectory = () => {
         .fd-page {
           font-family: 'DM Sans', sans-serif;
           min-height: 100vh;
-          background: #f4f7f5;
+          background: #fffdf9;
           position: relative;
           overflow-x: hidden;
         }
@@ -74,16 +88,16 @@ const FacultyDirectory = () => {
           inset: 0;
           z-index: 0;
           background:
-            radial-gradient(ellipse 80% 50% at 10% 0%, rgba(15,76,53,0.07) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 40% at 90% 100%, rgba(45,184,126,0.06) 0%, transparent 50%),
-            #f4f7f5;
+            radial-gradient(ellipse 80% 50% at 10% 0%, rgba(139,0,0,0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 90% 100%, rgba(234,179,8,0.05) 0%, transparent 50%),
+            #fffdf9;
           pointer-events: none;
         }
         .fd-bg-dots {
           position: fixed;
           inset: 0;
           z-index: 0;
-          background-image: radial-gradient(circle, rgba(15,76,53,0.06) 1px, transparent 1px);
+          background-image: radial-gradient(circle, rgba(139,0,0,0.05) 1px, transparent 1px);
           background-size: 28px 28px;
           pointer-events: none;
         }
@@ -328,6 +342,17 @@ const FacultyDirectory = () => {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Skeleton styling */
+        .fd-skeleton {
+          background: #e2e8f0;
+          border-radius: 6px;
+          animation: fd-pulse-skeleton 1.5s infinite ease-in-out;
+        }
+        @keyframes fd-pulse-skeleton {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
       `}</style>
 
       <div className="fd-page">
@@ -341,19 +366,12 @@ const FacultyDirectory = () => {
 
           {/* Hero */}
           <div className="fd-hero">
-            {/* <div className="fd-hero-eyebrow">
-              <span className="fd-hero-dot" />
-              GCEK Berhampur
-            </div> */}
             <h1 className="fd-title">
               Meet Our <span className="fd-title-accent">Faculty</span>
             </h1>
-            {/* <p className="fd-subtitle">
-              Discover our distinguished educators, researchers, and mentors shaping the future of engineering.
-            </p> */}
             {/* <div className="fd-stats">
               <div className="fd-stat">
-                <div className="fd-stat-num">{facultyData.length}</div>
+                <div className="fd-stat-num">{facultyList.length}</div>
                 <div className="fd-stat-lbl">Faculty</div>
               </div>
               <div className="fd-stat">
@@ -362,13 +380,13 @@ const FacultyDirectory = () => {
               </div>
               <div className="fd-stat">
                 <div className="fd-stat-num">
-                  {facultyData.filter(f => f.type === "Regular").length}
+                  {facultyList.filter(f => f.type === "Regular Faculty" || f.type === "Regular").length}
                 </div>
                 <div className="fd-stat-lbl">Regular</div>
               </div>
               <div className="fd-stat">
                 <div className="fd-stat-num">
-                  {facultyData.filter(f => f.type === "Guest").length}
+                  {facultyList.filter(f => f.type === "Guest Faculty" || f.type === "Guest").length}
                 </div>
                 <div className="fd-stat-lbl">Guest</div>
               </div>
@@ -393,8 +411,8 @@ const FacultyDirectory = () => {
           {/* Results bar */}
           <div className="fd-results-bar">
             <p className="fd-results-text">
-              Showing <strong>{paginatedFaculty.length}</strong> of{" "}
-              <strong>{filteredFaculty.length}</strong> faculty members
+              Showing <strong>{loading ? 0 : paginatedFaculty.length}</strong> of{" "}
+              <strong>{loading ? 0 : filteredFaculty.length}</strong> faculty members
             </p>
             <span className="fd-results-badge">
               Page {page} of {Math.max(1, Math.ceil(filteredFaculty.length / perPage))}
@@ -403,7 +421,18 @@ const FacultyDirectory = () => {
 
           {/* Grid */}
           <div className="fd-grid">
-            {paginatedFaculty.length > 0 ? (
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="fc-card" style={{ height: "350px", padding: "28px 24px", alignItems: "center", display: "flex", flexDirection: "column", background: "white", borderRadius: "20px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+                  <div className="fd-skeleton" style={{ width: "84px", height: "84px", borderRadius: "50%", marginBottom: "18px" }}></div>
+                  <div className="fd-skeleton" style={{ width: "120px", height: "20px", marginBottom: "12px" }}></div>
+                  <div className="fd-skeleton" style={{ width: "80px", height: "16px", borderRadius: "10px", marginBottom: "14px" }}></div>
+                  <div style={{ width: "36px", height: "2px", background: "#f3f4f6", marginBottom: "14px" }}></div>
+                  <div className="fd-skeleton" style={{ width: "160px", height: "14px", marginBottom: "8px" }}></div>
+                  <div className="fd-skeleton" style={{ width: "140px", height: "14px" }}></div>
+                </div>
+              ))
+            ) : paginatedFaculty.length > 0 ? (
               paginatedFaculty.map((faculty, i) => (
                 <div
                   key={faculty.id}
