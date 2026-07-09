@@ -12,7 +12,7 @@ export const convertGoogleDriveUrl = (url) => {
   
   // Handle local uploaded paths
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:5000${url}`;
+    return `https://gcekfaculty.onrender.com${url}`;
   }
   
   // Handle Google Drive URLs
