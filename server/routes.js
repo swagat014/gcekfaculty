@@ -187,6 +187,14 @@ router.put('/faculty/:id', authenticateJWT, (req, res) => {
       return res.status(404).json({ message: 'Faculty member not found.' });
     }
 
+    // Delete old local image if a new image is set and is different
+    if (fields.image && existing.image && fields.image !== existing.image && existing.image.startsWith('/uploads/')) {
+      const imgPath = path.join(__dirname, existing.image);
+      if (fs.existsSync(imgPath)) {
+        fs.unlinkSync(imgPath);
+      }
+    }
+
     const updates = Object.keys(fields).map(key => `${key} = @${key}`).join(', ');
     if (updates.length === 0) {
       return res.status(400).json({ message: 'No fields provided for update.' });
