@@ -10,6 +10,9 @@ import qrcode from 'qrcode';
 import rateLimit from 'express-rate-limit';
 import db from './database.js';
 
+// Configure TOTP window leeway to allow time drift of up to 60 seconds (2 steps)
+authenticator.options = { window: 2 };
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

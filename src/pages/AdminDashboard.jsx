@@ -13,6 +13,10 @@ const AdminDashboard = () => {
   const [hodFilter, setHodFilter] = useState("");
   const [isCustomDept, setIsCustomDept] = useState(false);
   
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
   // Modals state
   const [showModal, setShowModal] = useState(false); // Add/Edit modal
   const [modalMode, setModalMode] = useState("add"); // add | edit
@@ -65,6 +69,15 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   // Load faculty & MFA settings
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, deptFilter, typeFilter, hodFilter]);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -323,6 +336,13 @@ const AdminDashboard = () => {
     const matchesHod = !hodFilter || (hodFilter === "yes" && f.hod === "yes") || (hodFilter === "no" && f.hod !== "yes");
     return matchesSearch && matchesDept && matchesType && matchesHod;
   });
+
+  // Pagination Slice
+  const totalPages = Math.ceil(filteredFaculty.length / itemsPerPage);
+  const paginatedFaculty = filteredFaculty.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="dashboard-page">
@@ -815,7 +835,7 @@ const AdminDashboard = () => {
           display: block;
           font-size: 13px;
           font-weight: 600;
-          color: #0f4c35;
+          color: #8b0000;
           margin-bottom: 6px;
         }
 
@@ -823,15 +843,15 @@ const AdminDashboard = () => {
           width: 100%;
           padding: 10px 14px;
           border-radius: 10px;
-          border: 1px solid rgba(15, 76, 53, 0.15);
+          border: 1px solid rgba(139, 0, 0, 0.15);
           font-size: 14px;
           outline: none;
           background: #fdfdfd;
         }
 
         .form-input:focus {
-          border-color: #0f4c35;
-          box-shadow: 0 0 0 3px rgba(15, 76, 53, 0.06);
+          border-color: #8b0000;
+          box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.06);
         }
 
         .span-2 {
@@ -846,7 +866,7 @@ const AdminDashboard = () => {
 
         /* Custom image uploader */
         .image-uploader {
-          border: 2px dashed rgba(15, 76, 53, 0.2);
+          border: 2px dashed rgba(139, 0, 0, 0.2);
           border-radius: 12px;
           padding: 20px;
           text-align: center;
@@ -860,8 +880,8 @@ const AdminDashboard = () => {
         }
 
         .image-uploader:hover {
-          border-color: #0f4c35;
-          background: rgba(45, 184, 126, 0.02);
+          border-color: #8b0000;
+          background: rgba(234, 179, 8, 0.02);
         }
 
         .upload-preview {
@@ -1016,11 +1036,11 @@ const AdminDashboard = () => {
           display: flex;
           gap: 30px;
           align-items: center;
-          background: #f8faf9;
+          background: #fffdf9;
           padding: 24px;
           border-radius: 16px;
           margin-top: 20px;
-          border: 1px solid rgba(15,76,53,0.08);
+          border: 1px solid rgba(139,0,0,0.08);
         }
 
         @media (max-width: 600px) {
@@ -1042,7 +1062,7 @@ const AdminDashboard = () => {
         .qr-instructions ol {
           margin: 0;
           padding-left: 20px;
-          color: #4c665a;
+          color: #7a6e67;
           font-size: 14px;
           line-height: 1.5;
         }
@@ -1072,6 +1092,391 @@ const AdminDashboard = () => {
 
         .security-btn-reset:hover {
           background: rgba(126, 0, 0, 0.05);
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 16px;
+          padding: 20px;
+          border-top: 1px solid rgba(139, 0, 0, 0.06);
+          background: #ffffff;
+        }
+
+        .pagination-btn {
+          padding: 8px 16px;
+          border-radius: 10px;
+          border: 1px solid rgba(139, 0, 0, 0.15);
+          background: white;
+          color: #8b0000;
+          font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+          background: #8b0000;
+          color: white;
+          border-color: #8b0000;
+        }
+
+        .pagination-btn:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+        }
+
+        .pagination-info {
+          font-size: 13px;
+          font-weight: 600;
+          color: #7a6e67;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+          .dashboard-page {
+            flex-direction: column;
+            background: radial-gradient(circle at 80% 10%, rgba(234, 179, 8, 0.08), transparent 300px),
+                        radial-gradient(circle at 10% 80%, rgba(139, 0, 0, 0.06), transparent 300px),
+                        #fffdf9;
+            overflow-x: hidden;
+            width: 100%;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          /* Transform sidebar into a modern floating Apple-like bottom dock */
+          .sidebar {
+            position: fixed;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            width: auto;
+            height: 70px;
+            flex-direction: row;
+            padding: 10px 18px;
+            box-shadow: 0 12px 40px rgba(139, 0, 0, 0.16);
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 24px;
+            background: rgba(139, 0, 0, 0.88); /* Translucent Apple Crimson Glass */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            z-index: 1000;
+          }
+
+          .sidebar-logo {
+            display: none !important;
+          }
+
+          .nav-list {
+            flex-direction: row;
+            width: auto;
+            flex: 1;
+            justify-content: space-around;
+            align-items: center;
+            gap: 6px;
+            margin-right: 12px;
+          }
+
+          .nav-item {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            gap: 6px;
+            white-space: nowrap;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.65);
+            border: 1px solid transparent;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+          }
+
+          .nav-item.active {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-weight: 700;
+          }
+
+          .sidebar-footer {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .btn-logout {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border-radius: 50% !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+          }
+
+          .btn-logout:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.22) !important;
+          }
+
+          .btn-logout span {
+            display: none !important; /* Hide "Log Out" text to make it an icon button on mobile */
+          }
+
+          .btn-logout svg {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+          }
+
+          /* Main content spans full width and has padding at the bottom so bottom bar doesn't overlay */
+          .main-content {
+            margin-left: 0;
+            padding: 20px 15px 120px 15px;
+          }
+
+          .header-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+          }
+
+          .page-title {
+            font-size: 22px;
+          }
+
+          /* Frosted Apple Glass Cards */
+          .metric-card, .table-card, .settings-card {
+            background: rgba(255, 255, 255, 0.72) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.65) !important;
+            box-shadow: 0 10px 30px rgba(139, 0, 0, 0.04) !important;
+            border-radius: 24px;
+          }
+
+          .table-controls {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+          }
+
+          .search-input {
+            width: 100%;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(139, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+          }
+
+          .filter-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(139, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+          }
+
+          .btn-add {
+            width: 100%;
+            justify-content: center;
+          }
+
+          /* Transform table into a 2-column grid of beautiful Apple cards on mobile */
+          .table-card {
+            width: 100%;
+            overflow: visible;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+
+          .faculty-table thead {
+            display: none;
+          }
+
+          .faculty-table {
+            display: block;
+            width: 100% !important;
+            box-sizing: border-box;
+          }
+
+          .faculty-table tbody {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+
+          .faculty-table tr {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            border-radius: 24px;
+            padding: 16px 10px;
+            box-shadow: 0 8px 24px rgba(139, 0, 0, 0.04) !important;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 270px;
+            text-align: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+            width: 100%;
+          }
+
+          .faculty-table tr:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 35px rgba(139, 0, 0, 0.12) !important;
+            border-color: rgba(234, 179, 8, 0.4) !important;
+            background: #ffffff !important;
+          }
+
+          .faculty-table td {
+            display: block;
+            padding: 0;
+            border-bottom: none;
+            text-align: center;
+            background: transparent !important;
+            width: 100%;
+          }
+
+          .faculty-table td:first-child {
+            border-left: none !important;
+          }
+
+          /* Avatar Frame with Gold Accent */
+          .faculty-table td:nth-child(1) {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+            margin-top: 4px;
+          }
+
+          .fac-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #eab308, 0 4px 10px rgba(139, 0, 0, 0.12);
+            transition: all 0.3s;
+          }
+
+          .faculty-table tr:hover .fac-avatar {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 0 0 2px #8b0000, 0 6px 15px rgba(139, 0, 0, 0.2);
+          }
+
+          /* Card Text Details grouping */
+          .faculty-table td:nth-child(2) {
+            /* Name */
+            font-size: 14px;
+            font-weight: 800;
+            color: #8b0000;
+            margin-top: 6px;
+            padding: 0 4px;
+            line-height: 1.3;
+          }
+
+          .faculty-table td:nth-child(3) {
+            /* Department */
+            font-size: 11px;
+            color: #7a6e67;
+            font-weight: 600;
+            margin-top: 4px;
+            padding: 0 4px;
+            line-height: 1.3;
+          }
+
+          .faculty-table td:nth-child(4) {
+            /* Designation */
+            font-size: 11px;
+            font-weight: 500;
+            color: #2b1f1a;
+            margin-top: 2px;
+          }
+
+          /* Badge styling */
+          .faculty-table td:nth-child(5) {
+            display: flex;
+            justify-content: center;
+            margin: 6px 0;
+          }
+
+          .fac-badge {
+            padding: 2px 10px;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+          }
+
+          /* Hide email to stay compact */
+          .faculty-table td:nth-child(6) {
+            display: none !important;
+          }
+
+          /* Actions dock inside card bottom */
+          .faculty-table td:nth-child(7) {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid rgba(139, 0, 0, 0.05);
+            width: 100%;
+          }
+
+          .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(139, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+          }
+
+          /* Adjusted pagination for mobile */
+          .pagination-container {
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.72);
+            margin-top: 15px;
+          }
+
+          .settings-card {
+            padding: 20px;
+          }
+
+          .qr-setup-box {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid rgba(139, 0, 0, 0.06);
+          }
+
+          .qr-instructions ol {
+            text-align: left;
+          }
         }
       `}</style>
 
@@ -1237,8 +1642,8 @@ const AdminDashboard = () => {
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredFaculty.map((member) => (
+                 <tbody>
+                  {paginatedFaculty.map((member) => (
                     <tr key={member.id}>
                       <td>
                         <img 
@@ -1287,7 +1692,7 @@ const AdminDashboard = () => {
                       </td>
                     </tr>
                   ))}
-                  {filteredFaculty.length === 0 && (
+                  {paginatedFaculty.length === 0 && (
                     <tr>
                       <td colSpan="7" style={{ textAlign: "center", color: "#667e73", padding: "40px" }}>
                         No faculty records match your criteria.
@@ -1296,6 +1701,29 @@ const AdminDashboard = () => {
                   )}
                 </tbody>
               </table>
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container">
+                  <button 
+                    className="pagination-btn"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  >
+                    Previous
+                  </button>
+                  <span className="pagination-info">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button 
+                    className="pagination-btn"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ) : (
