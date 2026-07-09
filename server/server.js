@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 initDb();
 
 const app = express();
+app.set('trust proxy', 1); // Trust proxy headers (Render/Cloudflare) for rate limiting
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS globally
