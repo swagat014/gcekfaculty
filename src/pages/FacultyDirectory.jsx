@@ -18,17 +18,34 @@ const FacultyDirectory = () => {
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [mounted, setMounted] = useState(false);
 
-  const perPage = 15;
+  const perPage = 20;
 
-  // Load faculty list from dynamic API on mount
+  // Load faculty list from dynamic API on mount (SWR caching)
   useEffect(() => {
     setMounted(true);
+    
+    // 1. Instantly read local cache first
+    const cachedData = localStorage.getItem("gcek_faculty_cache");
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFacultyList(parsed);
+          setLoading(false); // Disable initial loader since we have cache
+        }
+      } catch (err) {
+        console.warn("Cached data parse error, fetching fresh data...", err);
+      }
+    }
+
+    // 2. Fetch fresh data in background
     const loadFaculty = async () => {
       try {
         const data = await api.getFaculty();
         setFacultyList(data);
+        localStorage.setItem("gcek_faculty_cache", JSON.stringify(data));
       } catch (err) {
-        console.error("Failed to load faculty list:", err);
+        console.error("Failed to load faculty list from server:", err);
       } finally {
         setLoading(false);
       }
@@ -419,37 +436,42 @@ const FacultyDirectory = () => {
             </span>
           </div>
 
-          {/* Grid */}
-          <div className="fd-grid">
-            {loading ? (
-              Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="fc-card" style={{ height: "350px", padding: "28px 24px", alignItems: "center", display: "flex", flexDirection: "column", background: "white", borderRadius: "20px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-                  <div className="fd-skeleton" style={{ width: "84px", height: "84px", borderRadius: "50%", marginBottom: "18px" }}></div>
-                  <div className="fd-skeleton" style={{ width: "120px", height: "20px", marginBottom: "12px" }}></div>
-                  <div className="fd-skeleton" style={{ width: "80px", height: "16px", borderRadius: "10px", marginBottom: "14px" }}></div>
-                  <div style={{ width: "36px", height: "2px", background: "#f3f4f6", marginBottom: "14px" }}></div>
-                  <div className="fd-skeleton" style={{ width: "160px", height: "14px", marginBottom: "8px" }}></div>
-                  <div className="fd-skeleton" style={{ width: "140px", height: "14px" }}></div>
+          {/* Grid or Lottie Loader */}
+          {loading ? (
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "420px", width: "100%" }}>
+              <lottie-player
+                src="/loading.json"
+                background="transparent"
+                speed="1.2"
+                style={{ width: "300px", height: "300px" }}
+                loop
+                autoplay
+              ></lottie-player>
+              <p style={{ marginTop: "-20px", fontSize: "14px", color: "#8b0000", fontWeight: "600", letterSpacing: "0.06em", textTransform: "uppercase", animation: "fd-pulse 1.8s infinite" }}>
+                Connecting to GCEK Server...
+              </p>
+            </div>
+          ) : (
+            <div className="fd-grid">
+              {paginatedFaculty.length > 0 ? (
+                paginatedFaculty.map((faculty, i) => (
+                  <div
+                    key={faculty.id}
+                    className="fd-card-item"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <FacultyCard faculty={faculty} onClick={setSelectedFaculty} />
+                  </div>
+                ))
+              ) : (
+                <div className="fd-empty">
+                  <div className="fd-empty-icon">🔍</div>
+                  <div className="fd-empty-title">No faculty found</div>
+                  <div className="fd-empty-text">Try adjusting your search or filters</div>
                 </div>
-              ))
-            ) : paginatedFaculty.length > 0 ? (
-              paginatedFaculty.map((faculty, i) => (
-                <div
-                  key={faculty.id}
-                  className="fd-card-item"
-                  style={{ animationDelay: `${i * 40}ms` }}
-                >
-                  <FacultyCard faculty={faculty} onClick={setSelectedFaculty} />
-                </div>
-              ))
-            ) : (
-              <div className="fd-empty">
-                <div className="fd-empty-icon">🔍</div>
-                <div className="fd-empty-title">No faculty found</div>
-                <div className="fd-empty-text">Try adjusting your search or filters</div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Pagination */}
           <Pagination

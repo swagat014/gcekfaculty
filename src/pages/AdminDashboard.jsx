@@ -90,10 +90,27 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    setLoading(true);
+    // 1. Instantly read local cache first
+    const cachedData = localStorage.getItem("gcek_faculty_cache");
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFaculty(parsed);
+          setLoading(false); // Skip loader since we have cache
+        }
+      } catch (err) {
+        console.warn("Cache parsing failed in dashboard", err);
+      }
+    } else {
+      setLoading(true);
+    }
+
+    // 2. Fetch fresh data in background
     try {
       const data = await api.getFaculty();
       setFaculty(data);
+      localStorage.setItem("gcek_faculty_cache", JSON.stringify(data));
     } catch (err) {
       console.error(err);
       // If token expired, log out
