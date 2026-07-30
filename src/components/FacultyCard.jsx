@@ -3,8 +3,15 @@ import { convertGoogleDriveUrl } from "../utils/facultyUtils";
 const FacultyCard = ({ faculty, onClick }) => {
   const imageUrl = convertGoogleDriveUrl(faculty.image);
   const isPrincipal = faculty.designation?.toLowerCase() === "principal";
-  const isHod = faculty.hod === "yes";
-  
+  const isHod = faculty.hod === "yes" || (faculty.designation || "").toUpperCase().includes("HOD");
+
+  const cleanDesignation = (faculty.designation || "")
+    .replace(/^HOD\s*&\s*/i, "")
+    .replace(/^HOD\s*,\s*/i, "")
+    .replace(/^HOD\s*-\s*/i, "")
+    .replace(/^HOD\s+/i, "")
+    .trim() || (isHod ? "Faculty Member" : faculty.designation);
+
   let cardClass = "fc-card";
   if (isPrincipal) {
     cardClass += " fc-card-principal";
@@ -337,10 +344,15 @@ const FacultyCard = ({ faculty, onClick }) => {
             <span className={`fc-type-badge ${faculty.type === "Regular Faculty" || faculty.type === "Regular" ? "fc-type-regular" : "fc-type-guest"}`}>
               {faculty.type}
             </span>
+            {isHod && (
+              <span className="fc-hod-badge">
+                HOD
+              </span>
+            )}
           </div>
 
           <h2 className="fc-name">{faculty.name}</h2>
-          <span className="fc-designation">{faculty.designation}</span>
+          <span className="fc-designation">{cleanDesignation}</span>
 
           <div className="fc-divider" />
 

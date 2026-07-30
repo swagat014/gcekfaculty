@@ -225,18 +225,52 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteFaculty = async (id, name, type) => {
-    if (type === "Regular Faculty" || type === "Regular") {
-      alert("Regular Faculty members cannot be deleted from the UI.");
-      return;
-    }
-    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-      try {
-        await api.deleteFaculty(id);
-        fetchData();
-      } catch (err) {
-        alert(err.message || "Failed to delete faculty member.");
+  // Delete Confirmation Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name, type, designation }
+  const [deleteStep, setDeleteStep] = useState(1); // 1 = first prompt, 2 = second prompt for Regular Faculty
+  const [deleteConfirmNameInput, setDeleteConfirmNameInput] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const openDeleteModal = (member) => {
+    setDeleteTarget({
+      id: member.id,
+      name: member.name,
+      type: member.type || "Regular Faculty",
+      designation: member.designation || "Faculty"
+    });
+    setDeleteStep(1);
+    setDeleteConfirmNameInput("");
+    setDeleteError("");
+    setShowDeleteModal(true);
+  };
+
+  const executeFacultyDeletion = async () => {
+    if (!deleteTarget) return;
+
+    const isRegular = deleteTarget.type === "Regular Faculty" || deleteTarget.type === "Regular";
+    if (isRegular && deleteStep === 2) {
+      const cleanTargetName = deleteTarget.name.trim().toLowerCase();
+      const cleanInput = deleteConfirmNameInput.trim().toLowerCase();
+      if (cleanInput !== cleanTargetName) {
+        setDeleteError(`Please type "${deleteTarget.name}" exactly to confirm deletion.`);
+        return;
       }
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+
+    try {
+      await api.deleteFaculty(deleteTarget.id);
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+      fetchData();
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete faculty record.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1673,9 +1707,33 @@ const AdminDashboard = () => {
                           }}
                         />
                       </td>
-                      <td style={{ fontWeight: 600 }}>{member.name}</td>
+                      <td style={{ fontWeight: 600 }}>
+                        {member.name}
+                        {(member.hod === "yes" || (member.designation || "").toUpperCase().includes("HOD")) && (
+                          <span style={{
+                            marginLeft: '8px',
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, #d97706, #fbbf24)',
+                            color: '#fff',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}>
+                            HOD
+                          </span>
+                        )}
+                      </td>
                       <td>{member.department}</td>
-                      <td>{member.designation}</td>
+                      <td>
+                        {(member.designation || "")
+                          .replace(/^HOD\s*&\s*/i, "")
+                          .replace(/^HOD\s*,\s*/i, "")
+                          .replace(/^HOD\s*-\s*/i, "")
+                          .replace(/^HOD\s+/i, "")
+                          .trim() || "Faculty Member"}
+                      </td>
                       <td>
                         <span className={`fac-badge ${member.type?.toLowerCase().includes('regular') ? 'regular' : 'guest'}`}>
                           {member.type || 'Regular'}
@@ -1696,9 +1754,8 @@ const AdminDashboard = () => {
                           </button>
                           <button 
                             className="btn-action delete" 
-                            title={member.type === "Regular Faculty" || member.type === "Regular" ? "Regular faculty cannot be deleted" : "Delete"}
-                            disabled={member.type === "Regular Faculty" || member.type === "Regular"}
-                            onClick={() => handleDeleteFaculty(member.id, member.name, member.type)}
+                            title={`Delete ${member.name}`}
+                            onClick={() => openDeleteModal(member)}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                               <polyline points="3 6 5 6 21 6"></polyline>
@@ -2194,6 +2251,196 @@ const AdminDashboard = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE FACULTY CONFIRMATION MODAL */}
+      {showDeleteModal && deleteTarget && (
+        <div className="modal-overlay" style={{ zIndex: 10000 }}>
+          <div className="modal-card" style={{ maxWidth: "480px", borderRadius: "20px", overflow: "hidden" }}>
+            <div className="modal-header" style={{
+              background: deleteTarget.type?.toLowerCase().includes("regular")
+                ? "linear-gradient(135deg, #7e0000 0%, #9a0000 100%)"
+                : "linear-gradient(135deg, #b45309 0%, #d97706 100%)",
+              color: "#ffffff"
+            }}>
+              <h2 className="modal-title" style={{ color: "#ffffff", display: "flex", alignItems: "center", gap: "8px" }}>
+                {deleteTarget.type?.toLowerCase().includes("regular")
+                  ? (deleteStep === 1 ? "⚠️ Confirm Regular Faculty Deletion" : "🚨 Final Confirmation Required")
+                  : "🗑️ Confirm Faculty Deletion"}
+              </h2>
+              <button className="btn-close" style={{ color: "#ffffff" }} onClick={() => setShowDeleteModal(false)}>&times;</button>
+            </div>
+
+            <div className="modal-body" style={{ padding: "24px" }}>
+              {deleteError && (
+                <div style={{
+                  padding: "10px 14px",
+                  background: "#fef2f2",
+                  border: "1px solid #fecaca",
+                  color: "#991b1b",
+                  borderRadius: "10px",
+                  fontSize: "0.82rem",
+                  marginBottom: "16px",
+                  fontWeight: 500
+                }}>
+                  {deleteError}
+                </div>
+              )}
+
+              {/* STEP 1: Initial Prompt for Guest OR Step 1 for Regular */}
+              {deleteStep === 1 && (
+                <div style={{ textAlign: "center" }}>
+                  <div style={{
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "50%",
+                    background: deleteTarget.type?.toLowerCase().includes("regular") ? "#fef2f2" : "#fffbe6",
+                    color: deleteTarget.type?.toLowerCase().includes("regular") ? "#dc2626" : "#d97706",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "28px",
+                    margin: "0 auto 16px"
+                  }}>
+                    {deleteTarget.type?.toLowerCase().includes("regular") ? "⚠️" : "❓"}
+                  </div>
+
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1f2937", marginBottom: "8px" }}>
+                    Are you sure you want to delete <span style={{ color: "#7e0000", fontWeight: 800 }}>{deleteTarget.name}</span>?
+                  </h3>
+
+                  <p style={{ fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.5, marginBottom: "16px" }}>
+                    {deleteTarget.type?.toLowerCase().includes("regular")
+                      ? `Dr. / Prof. ${deleteTarget.name} is a permanent Regular Faculty member. Deleting this profile will remove all associated records from the university portal.`
+                      : `Are you sure you want to remove Dr. / Prof. ${deleteTarget.name} from the faculty directory? This action cannot be undone.`}
+                  </p>
+
+                  <div style={{
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    borderRadius: "12px",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    background: deleteTarget.type?.toLowerCase().includes("regular") ? "#fee2e2" : "#fef3c7",
+                    color: deleteTarget.type?.toLowerCase().includes("regular") ? "#991b1b" : "#92400e",
+                    marginBottom: "20px"
+                  }}>
+                    Type: {deleteTarget.type || "Regular Faculty"}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                    <button
+                      type="button"
+                      className="btn-cancel"
+                      style={{ padding: "10px 20px", borderRadius: "10px" }}
+                      onClick={() => setShowDeleteModal(false)}
+                    >
+                      Cancel
+                    </button>
+
+                    {deleteTarget.type?.toLowerCase().includes("regular") ? (
+                      <button
+                        type="button"
+                        style={{
+                          padding: "10px 20px",
+                          borderRadius: "10px",
+                          background: "#dc2626",
+                          color: "#fff",
+                          fontWeight: 700,
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}
+                        onClick={() => {
+                          setDeleteStep(2);
+                          setDeleteConfirmNameInput("");
+                          setDeleteError("");
+                        }}
+                      >
+                        Proceed to Final Confirmation &rarr;
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        style={{
+                          padding: "10px 20px",
+                          borderRadius: "10px",
+                          background: "#dc2626",
+                          color: "#fff",
+                          fontWeight: 700,
+                          border: "none",
+                          cursor: "pointer"
+                        }}
+                        disabled={isDeleting}
+                        onClick={executeFacultyDeletion}
+                      >
+                        {isDeleting ? "Deleting..." : "Yes, Delete Faculty"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: Second Confirmation (Only for Regular Faculty) */}
+              {deleteStep === 2 && (
+                <div>
+                  <div style={{
+                    padding: "14px",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: "12px",
+                    marginBottom: "16px"
+                  }}>
+                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#991b1b", fontWeight: 600, lineHeight: 1.5 }}>
+                      🚨 <strong>Double Confirmation Required:</strong> You are about to permanently delete <strong>{deleteTarget.name}</strong> (Regular Faculty).
+                    </p>
+                  </div>
+
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: "6px" }}>
+                    Please type <span style={{ color: "#dc2626", userSelect: "all" }}>{deleteTarget.name}</span> below to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    style={{ width: "100%", padding: "10px 14px", fontSize: "0.9rem", fontWeight: 600, marginBottom: "20px" }}
+                    placeholder={`Type ${deleteTarget.name} exactly`}
+                    value={deleteConfirmNameInput}
+                    onChange={(e) => setDeleteConfirmNameInput(e.target.value)}
+                  />
+
+                  <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="btn-cancel"
+                      onClick={() => setDeleteStep(1)}
+                    >
+                      &larr; Back
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        padding: "10px 20px",
+                        borderRadius: "10px",
+                        background: deleteConfirmNameInput.trim().toLowerCase() === deleteTarget.name.trim().toLowerCase() ? "#dc2626" : "#fca5a5",
+                        color: "#fff",
+                        fontWeight: 700,
+                        border: "none",
+                        cursor: deleteConfirmNameInput.trim().toLowerCase() === deleteTarget.name.trim().toLowerCase() ? "pointer" : "not-allowed"
+                      }}
+                      disabled={isDeleting || deleteConfirmNameInput.trim().toLowerCase() !== deleteTarget.name.trim().toLowerCase()}
+                      onClick={executeFacultyDeletion}
+                    >
+                      {isDeleting ? "Deleting..." : `🔴 Permanently Delete ${deleteTarget.name}`}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

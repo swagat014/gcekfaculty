@@ -16,6 +16,14 @@ const FacultyModal = ({ faculty, onClose }) => {
 
   if (!faculty) return null;
 
+  const isHod = faculty.hod === "yes" || (faculty.designation || "").toUpperCase().includes("HOD");
+  const cleanDesignation = (faculty.designation || "")
+    .replace(/^HOD\s*&\s*/i, "")
+    .replace(/^HOD\s*,\s*/i, "")
+    .replace(/^HOD\s*-\s*/i, "")
+    .replace(/^HOD\s+/i, "")
+    .trim() || (isHod ? "Faculty Member" : faculty.designation);
+
   return (
     <>
       <style>{`
@@ -125,6 +133,19 @@ const FacultyModal = ({ faculty, onClose }) => {
           margin-bottom: 12px;
           letter-spacing: 0.02em;
         }
+        .fm-hod-pill {
+          font-size: 0.72rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          padding: 4px 12px;
+          border-radius: 20px;
+          background: linear-gradient(135deg, #d97706, #fbbf24);
+          color: #ffffff;
+          box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+          display: inline-block;
+          margin-bottom: 12px;
+        }
         .fm-contact-chips {
           display: flex;
           flex-wrap: wrap;
@@ -178,7 +199,6 @@ const FacultyModal = ({ faculty, onClose }) => {
         }
         @media (max-width: 768px) {
           .fm-quick-stats { grid-template-columns: repeat(2, 1fr); }
-        }
           .fm-header-inner { flex-direction: column; align-items: center; text-align: center; }
           .fm-contact-chips { justify-content: center; }
           .fm-body { padding: 20px 16px 24px; }
@@ -199,30 +219,31 @@ const FacultyModal = ({ faculty, onClose }) => {
           color: #6b7280;
           margin-bottom: 4px;
         }
-        .fm-stat-value {
+        .fm-stat-val {
           font-size: 0.88rem;
           font-weight: 600;
-          color: #1f2937;
+          color: #1a1a1a;
           line-height: 1.3;
         }
         .fm-stat-value.email { color: #7e0000; font-size: 0.78rem; word-break: break-all; }
 
         .fm-section-title {
-          font-size: 0.7rem;
+          font-size: 0.78rem;
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #9ca3af;
-          margin-bottom: 14px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid #f3f4f6;
+          letter-spacing: 0.08em;
+          color: #7e0000;
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
 
         .fm-grid-2 {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin-bottom: 12px;
+          gap: 20px;
+          margin-bottom: 24px;
         }
         .fm-detail-card {
           background: #f9fafb;
@@ -249,6 +270,63 @@ const FacultyModal = ({ faculty, onClose }) => {
           color: #374151;
           line-height: 1.6;
           font-weight: 400;
+        }
+        .fm-card-block {
+          background: #fafcfb;
+          border: 1px solid #eef4f1;
+          border-radius: 14px;
+          padding: 16px;
+        }
+        .fm-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .fm-list-item {
+          font-size: 0.82rem;
+          color: #374151;
+          line-height: 1.5;
+          display: flex;
+          align-items: flex-start;
+          gap: 7px;
+        }
+        .fm-list-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #7e0000;
+          margin-top: 7px;
+          flex-shrink: 0;
+        }
+        .fm-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .fm-tag {
+          font-size: 0.75rem;
+          background: #f0fdf4;
+          color: #166534;
+          border: 1px solid #bbf7d0;
+          border-radius: 20px;
+          padding: 4px 12px;
+          font-weight: 500;
+        }
+        .fm-address-block {
+          background: #fefce8;
+          border: 1px solid #fef08a;
+          border-radius: 14px;
+          padding: 16px;
+        }
+        .fm-address-title {
+          font-size: 0.72rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: #7e0000;
         }
 
         .fm-address {
@@ -295,7 +373,14 @@ const FacultyModal = ({ faculty, onClose }) => {
               )}
               <div className="fm-title-group">
                 <h2 className="fm-name">{faculty.name}</h2>
-                <span className="fm-designation">{faculty.designation}</span>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  <span className="fm-designation">{cleanDesignation}</span>
+                  {isHod && (
+                    <span className="fm-hod-pill">
+                      HOD
+                    </span>
+                  )}
+                </div>
                 <div className="fm-contact-chips">
                   <span className="fm-chip">
                     <span className="fm-chip-icon">🏛️</span>
