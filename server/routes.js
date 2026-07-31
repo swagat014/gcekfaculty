@@ -95,12 +95,14 @@ router.post('/auth/login', (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    // Check password if provided
-    if (password) {
-      const passwordMatch = bcrypt.compareSync(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).json({ message: 'Invalid credentials.' });
-      }
+    // Check password strictly against database
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required.' });
+    }
+
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
     // Check MFA if enabled
@@ -113,8 +115,6 @@ router.post('/auth/login', (req, res) => {
           return res.status(401).json({ message: 'Invalid 2FA verification code.' });
         }
       }
-    } else if (!password && !code) {
-      return res.status(400).json({ message: 'Password or verification code is required.' });
     }
 
     // Generate JWT

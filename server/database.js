@@ -61,22 +61,22 @@ export function initDb() {
     )
   `).run();
 
-  // Check if settings has MFA configs, insert defaults if empty
+  // Ensure MFA default setting
   const mfaEnabled = db.prepare('SELECT value FROM settings WHERE key = ?').get('mfa_enabled');
   if (mfaEnabled === undefined) {
     db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('mfa_enabled', 'false');
     db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('mfa_secret', '');
   }
 
-  // Seed default admin user if users table is empty
+  // Seed default admin user ONLY if users table is empty
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
   if (userCount === 0) {
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const defaultUsername = 'gcekbpatnaadmin';
+    const defaultPassword = 'gcek@2009#2009';
     const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(adminPassword, salt);
-    db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(adminUsername, hashedPassword);
-    console.log(`[Database] Seeded default admin user: ${adminUsername}`);
+    const hashedPassword = bcrypt.hashSync(defaultPassword, salt);
+    db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(defaultUsername, hashedPassword);
+    console.log(`[Database] Seeded initial admin user: ${defaultUsername}`);
   }
 
   // Seed faculty data if faculty table is empty
