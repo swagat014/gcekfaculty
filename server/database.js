@@ -68,15 +68,16 @@ export function initDb() {
     db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('mfa_secret', '');
   }
 
-  // Seed default admin user ONLY if users table is empty
+  // Seed default admin user gcekbpatnaadmin if not present
+  const adminUser = db.prepare("SELECT * FROM users WHERE username = 'gcekbpatnaadmin'").get();
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
-  if (userCount === 0) {
+  if (!adminUser && userCount <= 1) {
     const defaultUsername = 'gcekbpatnaadmin';
     const defaultPassword = 'gcek@2009#2009';
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(defaultPassword, salt);
-    db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(defaultUsername, hashedPassword);
-    console.log(`[Database] Seeded initial admin user: ${defaultUsername}`);
+    db.prepare('INSERT OR REPLACE INTO users (id, username, password) VALUES (1, ?, ?)').run(defaultUsername, hashedPassword);
+    console.log(`[Database] Seeded admin user: ${defaultUsername}`);
   }
 
   // Seed faculty data if faculty table is empty
