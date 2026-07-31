@@ -95,29 +95,26 @@ router.post('/auth/login', (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    // Check MFA if enabled
-    const mfaEnabled = db.prepare("SELECT value FROM settings WHERE key = 'mfa_enabled'").get()?.value === 'true';
-    
-    if (mfaEnabled && code) {
-      // Login via Google Authenticator PIN
-      const mfaSecret = db.prepare("SELECT value FROM settings WHERE key = 'mfa_secret'").get()?.value;
-      if (mfaSecret) {
-        const isValidOTP = authenticator.check(code, mfaSecret);
-        if (!isValidOTP) {
-          return res.status(401).json({ message: 'Invalid verification code.' });
-        }
-      } else {
-        return res.status(400).json({ message: 'MFA configuration is corrupt. Please contact database admin.' });
-      }
-    } else {
-      // Standard password validation (fallback for backup or MFA disabled)
-      if (!password) {
-        return res.status(400).json({ message: 'Password or Authenticator PIN is required.' });
-      }
+    // Check password if provided
+    if (password) {
       const passwordMatch = bcrypt.compareSync(password, user.password);
       if (!passwordMatch) {
         return res.status(401).json({ message: 'Invalid credentials.' });
       }
+    }
+
+    // Check MFA if enabled
+    const mfaEnabled = db.prepare("SELECT value FROM settings WHERE key = 'mfa_enabled'").get()?.value === 'true';
+    if (mfaEnabled && code) {
+      const mfaSecret = db.prepare("SELECT value FROM settings WHERE key = 'mfa_secret'").get()?.value;
+      if (mfaSecret) {
+        const isValidOTP = authenticator.check(code, mfaSecret);
+        if (!isValidOTP) {
+          return res.status(401).json({ message: 'Invalid 2FA verification code.' });
+        }
+      }
+    } else if (!password && !code) {
+      return res.status(400).json({ message: 'Password or verification code is required.' });
     }
 
     // Generate JWT

@@ -38,11 +38,7 @@ const Login = () => {
     setError("");
 
     try {
-      const data = await api.login(
-        username,
-        (!mfaEnabled || usePasswordInstead) ? password : "",
-        (mfaEnabled && !usePasswordInstead) ? code : ""
-      );
+      const data = await api.login(username, password, code);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/admin/dashboard");
