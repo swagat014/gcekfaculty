@@ -4,6 +4,8 @@ const FacultyCard = ({ faculty, onClick }) => {
   const imageUrl = convertGoogleDriveUrl(faculty.image);
   const isPrincipal = faculty.designation?.toLowerCase() === "principal";
   const isHod = faculty.hod === "yes" || (faculty.designation || "").toUpperCase().includes("HOD");
+  const isRegular = (faculty.type || "").toLowerCase().includes("regular");
+  const isGuest = (faculty.type || "").toLowerCase().includes("guest");
 
   const cleanDesignation = (faculty.designation || "")
     .replace(/^HOD\s*&\s*/i, "")
@@ -18,6 +20,11 @@ const FacultyCard = ({ faculty, onClick }) => {
   } else if (isHod) {
     cardClass += " fc-card-hod";
   }
+  if (isGuest) {
+    cardClass += " fc-card-guest";
+  } else if (isRegular && !isPrincipal) {
+    cardClass += " fc-card-regular";
+  }
 
   return (
     <>
@@ -28,18 +35,23 @@ const FacultyCard = ({ faculty, onClick }) => {
           font-family: 'DM Sans', sans-serif;
           position: relative;
           background: #fff;
-          border-radius: 20px;
+          border-radius: 24px;
           overflow: hidden;
           cursor: pointer;
-          transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+          transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+          box-shadow: 0 8px 24px rgba(29, 34, 31, 0.08), 0 1px 3px rgba(29, 34, 31, 0.05);
           display: flex;
           flex-direction: column;
           height: 100%;
+          border: 1px solid rgba(29, 34, 31, 0.06);
         }
         .fc-card:hover {
-          transform: translateY(-6px) scale(1.01);
-          box-shadow: 0 20px 48px rgba(126, 0, 0, 0.18), 0 0 0 1px rgba(126, 0, 0, 0.08);
+          transform: translateY(-5px);
+          box-shadow: 0 18px 38px rgba(29, 34, 31, 0.14), 0 4px 10px rgba(29, 34, 31, 0.06);
+        }
+        .fc-card:focus-visible {
+          outline: 3px solid #c5a66b;
+          outline-offset: 3px;
         }
 
         /* Accent bar on top */
@@ -185,6 +197,199 @@ const FacultyCard = ({ faculty, onClick }) => {
         }
         .fc-card-hod:hover .fc-avatar-ring {
           background: conic-gradient(#b45309 0%, #d97706 40%, #fffbeb 60%, #b45309 100%);
+        }
+
+        .fc-card-guest {
+          background: linear-gradient(160deg, #fffefa 0%, #f7faf6 100%);
+          border-color: rgba(55, 91, 67, 0.14);
+          box-shadow: 0 8px 24px rgba(35, 67, 45, 0.09), 0 1px 3px rgba(35, 67, 45, 0.05);
+        }
+        .fc-card-guest:hover {
+          box-shadow: 0 20px 40px rgba(35, 67, 45, 0.16), 0 0 0 1px rgba(174, 139, 77, 0.42);
+        }
+        .fc-card-guest .fc-accent {
+          height: 6px;
+          background: linear-gradient(90deg, #426d53, #d2b776 52%, #426d53);
+          animation: none;
+        }
+        .fc-card-guest .fc-body {
+          padding: 27px 24px 25px;
+        }
+        .fc-card-guest .fc-body::before {
+          content: "";
+          position: absolute;
+          inset: 0 0 auto;
+          height: 172px;
+          background:
+            radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.92), transparent 25%),
+            radial-gradient(circle at 12% 100%, rgba(255, 255, 255, 0.64), transparent 34%),
+            linear-gradient(145deg, #e5efe5, #d5e4d7);
+        }
+        .fc-card-guest .fc-avatar-wrap,
+        .fc-card-guest .fc-badges-wrap,
+        .fc-card-guest .fc-name,
+        .fc-card-guest .fc-divider,
+        .fc-card-guest .fc-dept,
+        .fc-card-guest .fc-email {
+          position: relative;
+          z-index: 1;
+        }
+        .fc-card-guest .fc-avatar-ring {
+          opacity: 1;
+          background: conic-gradient(from 25deg, #997744, #f0dfb6, #997744);
+          animation: none;
+        }
+        .fc-card-guest .fc-avatar-inner {
+          border: 4px solid #fffefa;
+          background: #e8eee8;
+          box-shadow: 0 4px 12px rgba(31, 62, 42, 0.18);
+        }
+        .fc-card-guest .fc-badges-wrap {
+          margin-bottom: 29px;
+        }
+        .fc-card-guest .fc-type-guest {
+          background: rgba(255, 255, 255, 0.88);
+          color: #2f523b;
+          border: 1px solid rgba(69, 107, 77, 0.25);
+          box-shadow: 0 2px 6px rgba(41, 79, 51, 0.08);
+        }
+        .fc-card-guest .fc-hod-badge {
+          color: #263b2d;
+          background: linear-gradient(135deg, #ead7a8, #f6e9c6);
+          box-shadow: none;
+        }
+        .fc-card-guest .fc-name {
+          margin-bottom: 12px;
+          color: #20372a;
+          font-size: 1.45rem;
+          letter-spacing: 0.015em;
+        }
+        .fc-card-guest .fc-divider {
+          width: 42px;
+          background: linear-gradient(90deg, #9b7846, #d8bd83);
+        }
+        .fc-card-guest:hover .fc-divider {
+          width: 64px;
+        }
+        .fc-card-guest .fc-dept {
+          color: #2d5039;
+          font-size: 0.82rem;
+          font-weight: 700;
+          letter-spacing: 0.025em;
+        }
+        .fc-card-guest .fc-email {
+          color: #657369;
+        }
+        .fc-card-guest .fc-footer {
+          color: #2f523b;
+          background: linear-gradient(180deg, #f8faf6, #edf3eb);
+          border-top: 1px solid #e2eade;
+          padding-block: 14px;
+        }
+        .fc-card-guest:hover .fc-footer {
+          color: #254331;
+          background: linear-gradient(90deg, #e2eee2, #d2e3d4);
+        }
+
+        .fc-card-regular {
+          background: linear-gradient(160deg, #fffefa 0%, #f8f7f2 100%);
+          border-color: rgba(35, 54, 74, 0.14);
+          box-shadow: 0 8px 24px rgba(27, 42, 59, 0.09), 0 1px 3px rgba(27, 42, 59, 0.05);
+        }
+        .fc-card-regular:hover {
+          box-shadow: 0 20px 40px rgba(27, 42, 59, 0.17), 0 0 0 1px rgba(195, 160, 98, 0.48);
+        }
+        .fc-card-regular .fc-accent {
+          height: 6px;
+          background: linear-gradient(90deg, #192b40, #d2b474 52%, #192b40);
+          animation: none;
+        }
+        .fc-card-regular .fc-body {
+          padding: 27px 24px 25px;
+        }
+        .fc-card-regular .fc-body::before {
+          content: "";
+          position: absolute;
+          inset: 0 0 auto;
+          height: 172px;
+          background:
+            radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.2), transparent 27%),
+            radial-gradient(circle at 10% 100%, rgba(216, 184, 125, 0.2), transparent 35%),
+            linear-gradient(145deg, #182a3e, #304761);
+        }
+        .fc-card-regular .fc-avatar-wrap,
+        .fc-card-regular .fc-badges-wrap,
+        .fc-card-regular .fc-name,
+        .fc-card-regular .fc-designation,
+        .fc-card-regular .fc-divider,
+        .fc-card-regular .fc-dept,
+        .fc-card-regular .fc-email {
+          position: relative;
+          z-index: 1;
+        }
+        .fc-card-regular .fc-avatar-ring {
+          opacity: 1;
+          background: conic-gradient(from 25deg, #9b7947, #f0dfb6, #9b7947);
+          animation: none;
+        }
+        .fc-card-regular .fc-avatar-inner {
+          border: 4px solid #fffefa;
+          background: #e8ebee;
+          box-shadow: 0 4px 12px rgba(24, 42, 62, 0.2);
+        }
+        .fc-card-regular .fc-badges-wrap {
+          margin-bottom: 29px;
+        }
+        .fc-card-regular .fc-type-regular {
+          background: rgba(255, 255, 255, 0.13);
+          color: #f3e7c9;
+          border: 1px solid rgba(230, 207, 159, 0.5);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 2px 8px rgba(15, 29, 45, 0.16);
+        }
+        .fc-card-regular .fc-hod-badge {
+          color: #432b18;
+          background: linear-gradient(135deg, #ead7a8, #f6e9c6);
+          box-shadow: none;
+        }
+        .fc-card-regular .fc-name {
+          margin-bottom: 8px;
+          color: #233346;
+          font-size: 1.45rem;
+          letter-spacing: 0.015em;
+        }
+        .fc-card-regular .fc-designation {
+          color: #344b63;
+          background: linear-gradient(135deg, #edf1f3, #e5eaed);
+          border-color: #d4dde2;
+          margin-bottom: 14px;
+          box-shadow: 0 2px 6px rgba(27, 42, 59, 0.07);
+        }
+        .fc-card-regular .fc-divider {
+          width: 42px;
+          background: linear-gradient(90deg, #997545, #d8bd83);
+        }
+        .fc-card-regular:hover .fc-divider {
+          width: 64px;
+        }
+        .fc-card-regular .fc-dept {
+          color: #3a4b5c;
+          font-size: 0.82rem;
+          font-weight: 700;
+          letter-spacing: 0.025em;
+        }
+        .fc-card-regular .fc-email {
+          color: #707a82;
+        }
+        .fc-card-regular .fc-footer {
+          color: #30455b;
+          background: linear-gradient(180deg, #f8f8f4, #eff1ed);
+          border-top: 1px solid #e3e7e5;
+          padding-block: 14px;
+        }
+        .fc-card-regular:hover .fc-footer {
+          color: #fff9e9;
+          background: linear-gradient(90deg, #192b40, #304761);
         }
 
         /* Avatar with ring */
@@ -341,7 +546,7 @@ const FacultyCard = ({ faculty, onClick }) => {
           </div>
 
           <div className="fc-badges-wrap">
-            <span className={`fc-type-badge ${faculty.type === "Regular Faculty" || faculty.type === "Regular" ? "fc-type-regular" : "fc-type-guest"}`}>
+            <span className={`fc-type-badge ${isRegular ? "fc-type-regular" : "fc-type-guest"}`}>
               {faculty.type}
             </span>
             {isHod && (
@@ -352,7 +557,7 @@ const FacultyCard = ({ faculty, onClick }) => {
           </div>
 
           <h2 className="fc-name">{faculty.name}</h2>
-          <span className="fc-designation">{cleanDesignation}</span>
+          {!isGuest && <span className="fc-designation">{cleanDesignation}</span>}
 
           <div className="fc-divider" />
 

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { convertGoogleDriveUrl } from "../utils/facultyUtils";
 
+const isAuthenticationError = (error) =>
+  /401|403|token|authorization|expired/i.test(error?.message || "");
+
 const AdminDashboard = () => {
   const [faculty, setFaculty] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +52,7 @@ const AdminDashboard = () => {
   });
   
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isSavingFaculty, setIsSavingFaculty] = useState(false);
   const [formError, setFormError] = useState("");
 
   // Security settings state
@@ -113,8 +117,7 @@ const AdminDashboard = () => {
       localStorage.setItem("gcek_faculty_cache", JSON.stringify(data));
     } catch (err) {
       console.error(err);
-      // If token expired, log out
-      if (err.message.includes("403") || err.message.includes("token")) {
+      if (isAuthenticationError(err)) {
         handleLogout();
       }
     } finally {
@@ -133,6 +136,9 @@ const AdminDashboard = () => {
       }));
     } catch (err) {
       console.error("Error loading MFA settings:", err);
+      if (isAuthenticationError(err)) {
+        handleLogout();
+      }
     }
   };
 
@@ -207,21 +213,31 @@ const AdminDashboard = () => {
     e.preventDefault();
     setFormError("");
 
-    if (!formData.name) {
+    if (!formData.name.trim()) {
       setFormError("Faculty name is required.");
       return;
     }
 
+    setIsSavingFaculty(true);
     try {
-      if (modalMode === "add") {
-        await api.addFaculty(formData);
-      } else {
-        await api.updateFaculty(selectedId, formData);
+      const savedFaculty = modalMode === "add"
+        ? await api.addFaculty(formData)
+        : await api.updateFaculty(selectedId, formData);
+
+      if (!savedFaculty?.id) {
+        throw new Error("The server did not return the saved faculty record. Please reload and check whether the change was applied.");
       }
+
+      const nextFaculty = modalMode === "add"
+        ? [...faculty, savedFaculty]
+        : faculty.map(member => member.id === savedFaculty.id ? savedFaculty : member);
+      setFaculty(nextFaculty);
+      localStorage.setItem("gcek_faculty_cache", JSON.stringify(nextFaculty));
       setShowModal(false);
-      fetchData();
     } catch (err) {
       setFormError(err.message || "Failed to save record.");
+    } finally {
+      setIsSavingFaculty(false);
     }
   };
 
@@ -264,9 +280,11 @@ const AdminDashboard = () => {
 
     try {
       await api.deleteFaculty(deleteTarget.id);
+      const nextFaculty = faculty.filter(member => member.id !== deleteTarget.id);
+      setFaculty(nextFaculty);
+      localStorage.setItem("gcek_faculty_cache", JSON.stringify(nextFaculty));
       setShowDeleteModal(false);
       setDeleteTarget(null);
-      fetchData();
     } catch (err) {
       setDeleteError(err.message || "Failed to delete faculty record.");
     } finally {
@@ -2202,8 +2220,8 @@ const AdminDashboard = () => {
               
               <div className="modal-footer">
                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn-save" disabled={uploadingImage}>
-                  {modalMode === "add" ? "Create Profile" : "Save Changes"}
+                <button type="submit" className="btn-save" disabled={uploadingImage || isSavingFaculty}>
+                  {isSavingFaculty ? "Saving..." : (modalMode === "add" ? "Create Profile" : "Save Changes")}
                 </button>
               </div>
             </form>
